@@ -16,15 +16,17 @@ def alive():
     return '', 204
 
 
-@app.route('/login', methods=['GET'])
+@app.route('/login', methods=['POST'])
 def login():
-    user = db.get_user_by_credentials(request.args.get('username'), request.args.get('password'))
+    user = db.get_user_by_credentials(request.form['username'], request.form['password'])
+
     if not user:
         return '', 401
 
     cookie = cookie_helper.generate_cookie(user)
 
-    response = make_response(redirect('/user'))
+    # response = make_response(redirect('/user'))
+    response = make_response()
     response.set_cookie('session_cookie', cookie)
 
     return response
@@ -48,6 +50,12 @@ def initialize():
     app.logger.info('Initializing server...')
     app.logger.info('Initializing DB...')
     db.initialize_db()
+
+
+@app.after_request
+def no_cache(response):
+    response.cache_control.no_store = True
+    return response
 
 
 if __name__ == '__main__':

@@ -17,20 +17,28 @@ def is_alive() -> bool:
 
 
 def do_login() -> str:
-    response = requests.post(f'{_URL}/login', data={
+    response = requests.get(f'{_URL}/login', params={
         'username': 'test_user',
         'password': '12345'
-    }, verify=False)
-    return response.cookies['session_cookie']
+    }, verify=False, allow_redirects=False)
+
+    cookies = None
+
+    if response.status_code == 302:
+        cookies = response.cookies
+        redirect = response.headers['Location']
+        _ = requests.get(redirect, cookies=cookies, verify=False)
+
+    if cookies:
+        return cookies['session_cookie']
+    return ''
 
 
-def get_user(cookie: str) -> Optional[dict]:
+def from_session(cookie: str):
     response = requests.get(f'{_URL}/user', cookies={
         'session_cookie': cookie
     }, verify=False)
-    if response.status_code == 200:
-        return response.json()
-    return None
+    print(response.content.decode('utf-8'))
 
 
 if __name__ == '__main__':
@@ -42,8 +50,4 @@ if __name__ == '__main__':
     print('Logging in...')
     cookie = do_login()
     print('Check whether logged in...')
-    user = get_user(cookie)
-    if user:
-        print(f"Successfully fetched userdata with cookie: \n {user}")
-    else:
-        print('Failed to fetch userdata with cookie')
+    from_session(cookie)
