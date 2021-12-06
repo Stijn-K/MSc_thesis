@@ -52,7 +52,7 @@ def from_session(session: HTMLSession, cookie: str) -> None:
     scripts = [x.attrs['src'] for x in page.html.find('script')]
     for script in scripts:
         js = session.get(get_url(script.lstrip('/'))).content.decode('utf-8')
-        page.html.render(script=js)
+        page.html.render(script=js, reload=False)
 
     print(page.html.html)
 

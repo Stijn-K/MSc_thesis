@@ -53,8 +53,10 @@ def initialize():
 
 
 @app.after_request
-def no_cache(response):
+def set_headers(response):
     response.cache_control.no_store = True
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST'
     return response
 
 
