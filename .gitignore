@@ -1,4 +1,5 @@
 .idea
 *.exe
 
-__pychache__
+__pychache__/
+*.pyc
