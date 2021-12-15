@@ -13,7 +13,7 @@ _SERVER = os.getenv('SERVER', 'localhost')
 @app.route('/', methods=['GET'])
 @app.route('/alive', methods=['GET'])
 def alive():
-    return '', 204
+    return make_response(render_template('alive.html'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
