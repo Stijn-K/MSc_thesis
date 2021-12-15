@@ -1,6 +1,4 @@
-import OpenSSL
-import werkzeug.serving
-from flask import Flask, request, make_response, jsonify, render_template, redirect
+from flask import Flask, request, make_response, render_template, redirect
 import db_helpers as db
 import cookie as cookie_helper
 import os
@@ -21,23 +19,20 @@ def alive():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        username = request.args.get('username')
-        password = request.args.get('password')
+        return make_response(render_template('login.html'))
+
     elif request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        user = db.get_user_by_credentials(request.form['username'], request.form['password'])
 
-    user = db.get_user_by_credentials(username, password)
+        if not user:
+            return '', 401
 
-    if not user:
-        return '', 401
+        cookie = cookie_helper.generate_cookie(user)
 
-    cookie = cookie_helper.generate_cookie(user)
+        response = make_response(redirect('/user'))
+        response.set_cookie('session_cookie', cookie)
 
-    response = make_response()
-    response.set_cookie('session_cookie', cookie)
-
-    return response
+        return response
 
 
 @app.route('/user', methods=['GET'])
@@ -51,15 +46,6 @@ def user():
 
     response = make_response(render_template('user.html', username=username, cookie=cookie))
     return response
-
-
-@app.route('/test', methods=['POST'])
-def test():
-    data = request.data
-    print(data)
-    print(request.cookies)
-    print(request.environ['HTTP_USER_AGENT'])
-    return '', 200
 
 
 @app.before_first_request
@@ -78,7 +64,4 @@ def set_headers(response):
 
 
 if __name__ == '__main__':
-    app.run(debug=True,
-            host=_SERVER,
-            port=5000,
-            ssl_context='adhoc')
+    app.run(debug=True, host=_SERVER, port=5000, ssl_context='adhoc')

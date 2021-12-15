@@ -1,77 +1,76 @@
 import os
 import sys
-from typing import Optional
 
-from requests.cookies import CookieConflictError
-from requests_html import HTMLSession
+from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.webdriver import WebDriver
 
 from dotenv import load_dotenv
-
-import warnings
-from urllib3.exceptions import InsecureRequestWarning
-warnings.simplefilter('ignore', InsecureRequestWarning)
+from selenium.webdriver.common.by import By
 
 load_dotenv()
+
+driver_path = os.getenv('CHROMEDRIVER')
 
 _SERVER = os.getenv('SERVER')
 _URL = f'https://{_SERVER}:5000'
 
 
-def get_url(endpoint: str, query: dict = None) -> str:
+def get_url(endpoint: str, **params) -> str:
     url = f'{_URL}/{endpoint}'
+    query = '&'.join([f'{k}={v}' for k, v in params.items()])
     if query:
-        query = '&'.join([f'{k}={v}' for k, v in query.items()])
         url += f'?{query}'
     return url
 
 
-def is_alive(session: HTMLSession) -> bool:
+def is_alive(driver: WebDriver) -> bool:
     try:
-        r = session.get(get_url('alive'))
-        return r.status_code == 204
-    except ConnectionError:
+        driver.get(get_url('alive'))
+        return True
+    except WebDriverException:
         return False
 
 
-def do_login(session: HTMLSession) -> Optional[str]:
-    r = session.post(get_url('login'), data={'username': 'test_user', 'password': '12345'})
-    if r.status_code == 401:
-        return None
-    return session.cookies.get('session_cookie')
+def do_login(driver: WebDriver) -> str:
+    driver.get(get_url('login'))
+    username = driver.find_element(By.ID, 'username')
+    username.clear()
+    username.send_keys('test_user')
+
+    password = driver.find_element(By.ID, 'password')
+    password.clear()
+    password.send_keys('12345')
+
+    driver.find_element(By.ID, 'submit').click()
+
+    return driver.get_cookie('session_cookie')['value']
 
 
-def from_session(session: HTMLSession, cookie: str) -> None:
-    try:
-        if not session.cookies.get('session_cookie'):
-            session.cookies.set(name='session_cookie', value=cookie, domain=_SERVER)
-    except CookieConflictError:
-        pass
-
-    page = session.get(get_url('user'))
-
-    scripts = [x.attrs['src'] for x in page.html.find('script')]
-    for script in scripts:
-        js = session.get(get_url(script.lstrip('/'))).content.decode('utf-8')
-        page.html.render(script=js, reload=False)
-
-    print(page.html.html)
+def from_session(driver: WebDriver, cookie: str):
+    driver.delete_all_cookies()
+    driver.add_cookie({'name': 'session_cookie', 'value': cookie})
+    driver.get(get_url('user'))
+    print(driver.page_source)
 
 
 if __name__ == '__main__':
-    session = HTMLSession(verify=False)
+    options = webdriver.ChromeOptions()
+    options.add_argument('ignore-certificate-errors')
+    # options.add_argument('--headless')
+    driver = webdriver.Chrome(service=ChromeService(executable_path=driver_path), options=options)
+
     print('Checking server status...')
-    if not is_alive(session):
+    if not is_alive(driver):
         print('Server down, exiting')
-        session.close()
+        driver.close()
         sys.exit(1)
 
     print('Logging in...')
-    cookie = do_login(session)
-    if not cookie:
-        print('Invalid login, exiting')
-        session.close()
-        sys.exit(1)
-
+    cookie = do_login(driver)
+    print(f'Got cookie: {cookie}')
     print('Check whether logged in...')
-    from_session(session, cookie)
-    session.close()
+    from_session(driver, cookie)
+
+    # driver.close()
