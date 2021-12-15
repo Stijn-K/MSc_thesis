@@ -16,20 +16,23 @@ def alive():
     return '', 204
 
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    user = db.get_user_by_credentials(request.form['username'], request.form['password'])
+    if request.method == 'GET':
+        return make_response(render_template('login.html'))
 
-    if not user:
-        return '', 401
+    elif request.method == 'POST':
+        user = db.get_user_by_credentials(request.form['username'], request.form['password'])
 
-    cookie = cookie_helper.generate_cookie(user)
+        if not user:
+            return '', 401
 
-    # response = make_response(redirect('/user'))
-    response = make_response()
-    response.set_cookie('session_cookie', cookie)
+        cookie = cookie_helper.generate_cookie(user)
 
-    return response
+        response = make_response(redirect('/user'))
+        response.set_cookie('session_cookie', cookie)
+
+        return response
 
 
 @app.route('/user', methods=['GET'])
