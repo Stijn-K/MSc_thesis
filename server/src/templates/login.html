@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <form id="login-form" method="post" action="login" onsubmit="login(event, this)">
+        <input id="username" name="username" type="text">
+        <input id="password" name="password" type="text">
+        <input id="submit" type="submit">
+    </form>
+</body>
+<script>
+    function login(e, form) {
+        fetch(form.action, {body: new FormData(form), redirect:'follow'})
+    }
+</script>
+</html>
