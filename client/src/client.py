@@ -5,14 +5,13 @@ from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.common.by import By
 
 from dotenv import load_dotenv
-from selenium.webdriver.common.by import By
 
 load_dotenv()
 
-driver_path = os.getenv('CHROMEDRIVER')
-
+_DRIVER_PATH = os.getenv('CHROMEDRIVER')
 _SERVER = os.getenv('SERVER')
 _URL = f'https://{_SERVER}:5000'
 
@@ -59,7 +58,7 @@ if __name__ == '__main__':
     options = webdriver.ChromeOptions()
     options.add_argument('ignore-certificate-errors')
     # options.add_argument('--headless')
-    driver = webdriver.Chrome(service=ChromeService(executable_path=driver_path), options=options)
+    driver = webdriver.Chrome(service=ChromeService(executable_path=_DRIVER_PATH), options=options)
 
     print('Checking server status...')
     if not is_alive(driver):
