@@ -1,19 +1,9 @@
-document.addEventListener('DOMContentLoaded', async function() {
-    let data = {
-        audio: await audioFingerprint(),
-        canvas: canvasFingerprint(),
+async function fingerprint() {
+    return {
+        'audio': await audioFingerprint(),
+        'canvas': canvasFingerprint(),
     }
-
-    fetch('https://localhost:5000/test', {
-        method: 'POST',
-        body: JSON.stringify(data)
-    })
-
-    let elem = document.createElement('h2');
-    elem.innerText = 'test';
-    document.body.appendChild(elem);
-
-})
+}
 
 
 async function audioFingerprint() {
@@ -45,7 +35,7 @@ async function audioFingerprint() {
         }
         return hash;
     });
-    return hash
+    return hash.toString()
 }
 
 function canvasFingerprint() {
@@ -99,5 +89,5 @@ function canvasFingerprint() {
         hash = ((hash<<5)-hash)+char;
         hash = hash & hash;
     }
-    return hash;
+    return hash.toString();
 }

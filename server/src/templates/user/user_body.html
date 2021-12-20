@@ -1,0 +1,6 @@
+{% if success %}
+    <h1>User: {{ result['username'] }}</h1>
+    <h1>Cookie: {{ result['cookie'] }}</h1>
+{% else %}
+    <h1>Error: {{ result }}</h1>
+{% endif %}

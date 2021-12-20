@@ -2,18 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Login</title>
+    <script src="{{url_for('static', filename='js/fingerprint.js')}}"></script>
 </head>
 <body>
-    <form id="login-form" method="post" action="login" onsubmit="login(event, this)">
+    <form id="login-form" action="login" method="POST" onsubmit="login(event, this)">
         <input id="username" name="username" type="text">
         <input id="password" name="password" type="text">
         <input id="submit" type="submit">
     </form>
 </body>
 <script>
-    function login(e, form) {
-        fetch(form.action, {body: new FormData(form), redirect:'follow'})
+    async function login(e, form) {
+        e.preventDefault()
+        let formData = Object.fromEntries((new FormData(form)).entries())
+        formData.fingerprint = await fingerprint()
+        let json = JSON.stringify(formData)
+
+        fetch('https://localhost:5000/login', {
+            method: 'POST',
+            body: json,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (response.redirected) {
+                window.location.href = response.url
+            }
+        })
     }
 </script>
 </html>

@@ -36,3 +36,9 @@ def set_user_cookie(username: str, cookie: str) -> None:
     with sqlite3.connect(_DB) as conn:
         cur = conn.cursor()
         cur.execute(f'UPDATE users SET cookie="{cookie}" WHERE username="{username}"')
+
+
+def set_user_fingerprint(username: str, fingerprint: str) -> None:
+    with sqlite3.connect(_DB) as conn:
+        cur = conn.cursor()
+        cur.execute(f'UPDATE users SET fingerprint="{fingerprint}" WHERE username="{username}"')

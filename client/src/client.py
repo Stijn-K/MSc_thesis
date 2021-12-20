@@ -1,11 +1,14 @@
 import os
 import sys
+import time
 
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from dotenv import load_dotenv
 
@@ -57,7 +60,8 @@ def from_session(driver: WebDriver, cookie: str):
 if __name__ == '__main__':
     options = webdriver.ChromeOptions()
     options.add_argument('ignore-certificate-errors')
-    # options.add_argument('--headless')
+    # options.add_argument('--auto-open-devtools-for-tabs')
+    options.add_argument('--headless')
     driver = webdriver.Chrome(service=ChromeService(executable_path=_DRIVER_PATH), options=options)
 
     print('Checking server status...')
