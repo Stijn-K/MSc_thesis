@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
@@ -35,7 +34,7 @@ def is_alive(driver: WebDriver) -> bool:
         return False
 
 
-def do_login(driver: WebDriver) -> str:
+def do_login(driver: WebDriver) -> tuple[bool, str]:
     driver.get(get_url('login'))
     username = driver.find_element(By.ID, 'username')
     username.clear()
@@ -47,13 +46,24 @@ def do_login(driver: WebDriver) -> str:
 
     driver.find_element(By.ID, 'submit').click()
 
-    return driver.get_cookie('session_cookie')['value']
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'header')))
+
+    if driver.find_elements(By.ID, 'user'):
+        return True, driver.get_cookie('session_cookie')['value']
+
+    elif elem := driver.find_elements(By.ID, 'error'):
+        return False, elem[0].text
+
+    return False, 'Unexpected error'
 
 
 def from_session(driver: WebDriver, cookie: str):
     driver.delete_all_cookies()
     driver.add_cookie({'name': 'session_cookie', 'value': cookie})
     driver.get(get_url('user'))
+
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'header')))
+
     print(driver.page_source)
 
 
@@ -71,9 +81,14 @@ if __name__ == '__main__':
         sys.exit(1)
 
     print('Logging in...')
-    cookie = do_login(driver)
-    print(f'Got cookie: {cookie}')
-    print('Check whether logged in...')
-    from_session(driver, cookie)
+    success, result = do_login(driver)
+    if not success:
+        print(f'Failed to log in: {result}')
+        driver.close()
+        sys.exit(1)
 
-    # driver.close()
+    print(f'Logged in, cookie: {result}')
+    print('Fetching user page for timing...')
+    from_session(driver, result)
+
+    driver.close()
