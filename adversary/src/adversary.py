@@ -5,6 +5,9 @@ from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from dotenv import load_dotenv
 
@@ -31,11 +34,20 @@ def is_alive(driver: WebDriver) -> bool:
         return False
 
 
-def from_session(driver: WebDriver, cookie: str):
+def hijack_session(driver: WebDriver, cookie: str) -> tuple[bool, str]:
     driver.delete_all_cookies()
     driver.add_cookie({'name': 'session_cookie', 'value': cookie})
     driver.get(get_url('user'))
-    print(driver.page_source)
+
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'header')))
+
+    if elem := driver.find_elements(By.ID, 'user'):
+        return True, elem[0].text
+
+    elif elem := driver.find_elements(By.ID, 'error'):
+        return False, elem[0].text
+
+    return False, 'Unexpected failure'
 
 
 if __name__ == '__main__':
@@ -54,6 +66,11 @@ if __name__ == '__main__':
     cookie = 'this_is_a_session_cookie'
 
     print('Check whether logged in...')
-    from_session(driver, cookie)
+    success, msg = hijack_session(driver, cookie)
+
+    if success:
+        print(f'Successfully hijacked session of: {msg}')
+    else:
+        print(f'Failed to hijack session: {msg}')
 
     # driver.close()

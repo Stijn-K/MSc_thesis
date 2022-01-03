@@ -2,10 +2,18 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>User: {{ username }}</title>
+        <title>User</title>
         <script src="{{url_for('static', filename='js/test.js')}}"></script>
     </head>
     <body>
-        <h1>cookie: {{ cookie }}</h1>
+        <h1 id="header">
+            User page
+        </h1>
+        {% if success %}
+            <h2 id="user">User: {{ result['username'] }}</h2>
+            <h2 id="cookie">Cookie: {{ result['cookie'] }}</h2>
+        {% else %}
+            <h2 id="error">Error: {{ result }}</h2>
+        {% endif %}
     </body>
 </html>
