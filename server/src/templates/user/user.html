@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>User</title>
+        <script src="{{url_for('static', filename='js/challenge_response.js')}}"></script>
+    </head>
+    <body>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const challenges = {{ challenges | safe }}
+                let body = get_responses(challenges)
+                let json = JSON.stringify(body)
+                fetch('/user', {
+                    method: 'POST',
+                    body: json,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => {
+                    response.text().then(re => {
+                        document.body.innerHTML += re
+                    })
+                })
+            })
+        </script>
+    </body>
+</html>

@@ -1,7 +1,9 @@
-from flask import Flask, request, make_response, jsonify, render_template, redirect
+from flask import Flask, request, make_response, render_template, redirect
 import db_helpers as db
 import cookie as cookie_helper
 import os
+import json
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,15 +21,16 @@ def alive():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        return make_response(render_template('login.html'))
+        challenges = json.dumps(cookie_helper.generate_challenges())
+        return make_response(render_template('login.html', challenges=challenges))
 
     elif request.method == 'POST':
-        user = db.get_user_by_credentials(request.form['username'], request.form['password'])
+        user = db.get_user_by_credentials(request.json['username'], request.json['password'])
 
         if not user:
             return '', 401
 
-        cookie = cookie_helper.generate_cookie(user)
+        cookie = cookie_helper.generate_cookie(user, challenges=request.json['challenges'])
 
         response = make_response(redirect('/user'))
         response.set_cookie('session_cookie', cookie)
@@ -35,17 +38,25 @@ def login():
         return response
 
 
-@app.route('/user', methods=['GET'])
+@app.route('/user', methods=['GET', 'POST'])
 def user():
     cookie = request.cookies.get('session_cookie')
-    user = cookie_helper.verify_cookie(cookie)
-    try:
-        username = user['username']
-    except (TypeError, KeyError):
-        username = None
+    if not cookie:
+        return redirect('/login')
 
-    response = make_response(render_template('user.html', username=username, cookie=cookie))
-    return response
+    user = db.get_user_by_cookie(cookie)
+
+    if request.method == 'GET':
+        challenge = cookie_helper.get_challenge(user['id'])
+        if not challenge:
+            return 'Oops! no more challenges to give out', 401
+
+        return render_template('user/user.html', challenges=[challenge])
+
+    elif request.method == 'POST':
+        crs = list(request.json.items())[0]
+        success, result = cookie_helper.verify_cookie(cookie, challenge_response=crs)
+        return render_template('user/user_body.html', success=success, result=result)
 
 
 @app.before_first_request

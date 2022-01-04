@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Login</title>
+    <script src="{{url_for('static', filename='js/challenge_response.js')}}"></script>
 </head>
 <body>
     <form id="login-form" method="post" action="login" onsubmit="login(event, this)">
@@ -13,7 +14,23 @@
 </body>
 <script>
     function login(e, form) {
-        fetch(form.action, {body: new FormData(form), redirect:'follow'})
+        e.preventDefault()
+        let formData = Object.fromEntries((new FormData(form)).entries())
+        let challenges = {{ challenges | safe }}
+        formData.challenges = get_responses(challenges)
+        let json = JSON.stringify(formData)
+
+        fetch('https://localhost:5000/login', {
+            method: 'POST',
+            body: json,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (response.redirected) {
+                window.location.href = response.url
+            }
+        })
     }
 </script>
 </html>

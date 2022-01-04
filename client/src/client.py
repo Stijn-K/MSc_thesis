@@ -9,6 +9,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+import json
+
+import numpy as np
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,6 +20,11 @@ load_dotenv()
 _DRIVER_PATH = os.getenv('CHROMEDRIVER')
 _SERVER = os.getenv('SERVER')
 _URL = f'https://{_SERVER}:5000'
+
+np.random.seed(0)
+_NUM_PUFS = 5
+_PUFS = [list(np.random.normal(size=10)) for _ in range(_NUM_PUFS)]
+_PUF_ORDER = list(range(1, _NUM_PUFS+1))
 
 
 def get_url(endpoint: str, **params) -> str:
@@ -79,6 +88,9 @@ if __name__ == '__main__':
         driver.close()
         sys.exit(1)
 
+    driver.execute_script(f'window.localStorage.setItem("pufs","{json.dumps(_PUFS)}");')
+    driver.execute_script(f'window.localStorage.setItem("order","{json.dumps(_PUF_ORDER)}");')
+
     print('Logging in...')
     success, result = do_login(driver)
     if not success:
@@ -90,4 +102,4 @@ if __name__ == '__main__':
     print('Fetching user page for timing...')
     from_session(driver, result)
 
-    # driver.close()
+    # driver.quit()
