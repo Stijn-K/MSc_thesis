@@ -1,7 +1,7 @@
 import os
 import sys
 
-from selenium import webdriver
+from seleniumwire import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.webdriver import WebDriver
