@@ -38,7 +38,11 @@ def login():
 
 @app.route('/user', methods=['GET'])
 def user():
-    success, result = cookie_helper.verify_otc(*request.headers['X-OTC'].split(','), request.url, '')
+    try:
+        success, result = cookie_helper.verify_otc(*request.headers['X-OTC'].split(','), request.url, '')
+    except (KeyError, TypeError, ValueError):
+        success = False
+        result = 'Endpoint requires OTC'
 
     response = make_response(render_template('user.html', success=success, result=result))
     return response

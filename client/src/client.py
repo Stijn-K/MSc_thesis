@@ -38,7 +38,7 @@ _OTC = {
     'n_s': None,            # session nonce
     't_s': 0,               # session expiration time
     'domain': None,         # OTC credential's scope
-    'path': None,         # OTC credential's scope
+    'path': None,           # OTC credential's scope
 }
 
 

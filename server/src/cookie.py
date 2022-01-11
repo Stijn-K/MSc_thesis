@@ -8,7 +8,6 @@ import hashlib
 import hmac
 from cryptography.fernet import Fernet, InvalidToken
 from base64 import urlsafe_b64encode as b64encode
-from base64 import urlsafe_b64decode as b64decode
 
 _LONG_TERM_KEY: bytes | None = None
 _SESSION_EXP = 1672527600
