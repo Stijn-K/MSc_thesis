@@ -39,12 +39,14 @@ def login():
 def user():
     cookie = request.cookies.get('session_cookie')
     user = cookie_helper.verify_cookie(cookie)
-    try:
-        username = user['username']
-    except (TypeError, KeyError):
-        username = None
+    if user:
+        success = True
+        result = user
+    else:
+        success = False
+        result = 'Invalid cookie'
 
-    response = make_response(render_template('user.html', username=username, cookie=cookie))
+    response = make_response(render_template('user.html', success=success, result=result))
     return response
 
 
