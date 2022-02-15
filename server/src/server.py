@@ -1,4 +1,9 @@
-from flask import Flask, request, make_response, jsonify, render_template, redirect
+from flask import Flask, request, make_response, render_template, redirect
+
+import werkzeug.serving
+import ssl
+import OpenSSL
+
 import db_helpers as db
 import cookie as cookie_helper
 import os
@@ -13,7 +18,7 @@ _SERVER = os.getenv('SERVER', 'localhost')
 @app.route('/', methods=['GET'])
 @app.route('/alive', methods=['GET'])
 def alive():
-    return make_response(render_template('alive.html'))
+    return make_response(render_template('alive.html', client_cert=request.environ))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -63,5 +68,31 @@ def set_headers(response):
     return response
 
 
+class PeerCertWSGIRequestHandler(werkzeug.serving.WSGIRequestHandler):
+    def make_environ(self):
+        environ = super(PeerCertWSGIRequestHandler, self).make_environ()
+        x509_binary = self.connection.getpeercert(True)
+        print(x509_binary)
+        if x509_binary:
+            x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_ASN1, x509_binary)
+            environ['peercert'] = x509
+        return environ
+
+ssl_context = ssl.create_default_context(purpose=ssl.Purpose.CLIENT_AUTH)
+# ssl_context = ssl.SSLContext()
+
+app_key = '../certs/server.key'
+app_cert = '../certs/server.crt'
+
+ssl_context.load_cert_chain(certfile=app_cert, keyfile=app_key, password=None)
+ssl_context.verify_mode = ssl.CERT_REQUIRED
+
+
 if __name__ == '__main__':
-    app.run(debug=True, host=_SERVER, port=5000, ssl_context='adhoc')
+    app.run(
+            debug=True,
+            host=_SERVER,
+            port=5000,
+            request_handler=PeerCertWSGIRequestHandler,
+            ssl_context=ssl_context,
+            )

@@ -8,7 +8,6 @@ flask = "*"
 selenium = "*"
 python-dotenv = "*"
 requests = "*"
-requests-html = {editable = true, git = "https://github.com/psf/requests-html.git"}
 
 [dev-packages]
 
