@@ -19,17 +19,17 @@ def alive():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        return make_response(render_template('login.html'))
+        return make_response(render_template('login.html', logged_in=False))
 
     elif request.method == 'POST':
         user = db.get_user_by_credentials(request.form['username'], request.form['password'])
 
         if not user:
-            return '', 401
+            return make_response(render_template('login.html', logged_in=False, error='Invalid credentials'))
 
         cookie = cookie_helper.generate_cookie(user)
 
-        response = make_response(redirect('/user'))
+        response = make_response(render_template('login.html', logged_in=True))
         response.set_cookie('session_cookie', cookie)
 
         return response
@@ -38,13 +38,10 @@ def login():
 @app.route('/user', methods=['GET'])
 def user():
     cookie = request.cookies.get('session_cookie')
-    user = cookie_helper.verify_cookie(cookie)
-    try:
-        username = user['username']
-    except (TypeError, KeyError):
-        username = None
+    success, result = cookie_helper.verify_cookie(cookie)
 
-    response = make_response(render_template('user.html', username=username, cookie=cookie))
+    response = make_response(render_template('user.html', success=success, result=result))
+
     return response
 
 
@@ -64,4 +61,4 @@ def set_headers(response):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host=_SERVER, port=5000, ssl_context='adhoc')
+    app.run(host=_SERVER, port=5000, ssl_context='adhoc')

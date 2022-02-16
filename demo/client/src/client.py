@@ -48,7 +48,7 @@ def do_login(driver: WebDriver) -> tuple[bool, str]:
 
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'header')))
 
-    if driver.find_elements(By.ID, 'user'):
+    if driver.find_elements(By.ID, 'logged_in'):
         return True, driver.get_cookie('session_cookie')['value']
 
     elif elem := driver.find_elements(By.ID, 'error'):
@@ -76,18 +76,18 @@ if __name__ == '__main__':
     print('Checking server status...')
     if not is_alive(driver):
         print('Server down, exiting')
-        driver.close()
+        driver.quit()
         sys.exit(1)
 
     print('Logging in...')
     success, result = do_login(driver)
     if not success:
         print(f'Failed to log in: {result}')
-        driver.close()
+        driver.quit()
         sys.exit(1)
 
     print(f'Logged in, cookie: {result}')
     print('Fetching user page for timing...')
     from_session(driver, result)
 
-    # driver.close()
+    # driver.quit()

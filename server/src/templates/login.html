@@ -1,19 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <form id="login-form" method="post" action="login" onsubmit="login(event, this)">
-        <input id="username" name="username" type="text">
-        <input id="password" name="password" type="text">
-        <input id="submit" type="submit">
-    </form>
-</body>
-<script>
-    function login(e, form) {
-        fetch(form.action, {body: new FormData(form), redirect:'follow'})
-    }
-</script>
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+
+    <body>
+        <h1 id="header">
+            Login page
+        </h1>
+        {% if logged_in %}
+            <h1 id="logged_in">Logged in!</h1>
+        {% else %}
+            <form id="login-form" method="post" action="login" onsubmit="login(event, this)">
+                <input id="username" name="username" type="text">
+                <input id="password" name="password" type="text">
+                <input id="submit" type="submit">
+            </form>
+        {% endif %}
+        {% if error %}
+            <h2 id="error">{{ error }}</h2>
+        {% endif %}
+    </body>
+    <script>
+        function login(e, form) {
+            fetch(form.action, {body: new FormData(form), redirect:'follow'})
+        }
+    </script>
 </html>
