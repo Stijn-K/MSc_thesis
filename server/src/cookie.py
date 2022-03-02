@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional
 
 import db_helpers as db
@@ -11,8 +13,11 @@ def generate_cookie(user: dict, **kwargs) -> str:
     return cookie
 
 
-def verify_cookie(cookie: str, **kwargs) -> Optional[dict]:
+def verify_cookie(cookie: str, **kwargs) -> tuple[bool, dict | str | None]:
     user = db.get_user_by_cookie(cookie)
 
-    return user
+    if not user:
+        return False, 'Invalid cookie'
+
+    return True, user
 
