@@ -75,13 +75,16 @@ class PeerCertWSGIRequestHandler(werkzeug.serving.WSGIRequestHandler):
             environ['peercert'] = x509
         return environ
 
-ssl_context = ssl.create_default_context(purpose=ssl.Purpose.CLIENT_AUTH)
-# ssl_context = ssl.SSLContext()
 
 app_key = '../certs/server.key'
+app_pw = None
 app_cert = '../certs/server.crt'
 
-ssl_context.load_cert_chain(certfile=app_cert, keyfile=app_key, password=None)
+ca_cert = '../certs/ClientCA.pem'
+
+ssl_context = ssl.create_default_context(purpose=ssl.Purpose.CLIENT_AUTH, cafile=ca_cert)
+
+ssl_context.load_cert_chain(certfile=app_cert, keyfile=app_key, password=app_pw)
 ssl_context.verify_mode = ssl.CERT_REQUIRED
 
 
