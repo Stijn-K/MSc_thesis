@@ -1,4 +1,5 @@
 import os
+import time
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -52,6 +53,9 @@ def time_user(driver: WebDriver) -> tuple[int, int]:
     driver.get(get_url('user'))
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'header')))
 
+    if elem := driver.find_elements(By.ID, 'error'):
+        print(elem[0].text)
+
     navigation_start = driver.execute_script("return window.performance.timing.navigationStart")
     response_start = driver.execute_script("return window.performance.timing.responseStart")
     dom_complete = driver.execute_script("return window.performance.timing.domComplete")
@@ -64,6 +68,7 @@ def time_user(driver: WebDriver) -> tuple[int, int]:
 if __name__ == '__main__':
     options = webdriver.ChromeOptions()
     options.add_argument('ignore-certificate-errors')
+    options.add_argument('--disk-cache-size 0')
     options.add_argument('--headless')
     driver = webdriver.Chrome(service=ChromeService(executable_path=_DRIVER_PATH), options=options)
 
@@ -88,6 +93,8 @@ if __name__ == '__main__':
         b, f = time_user(driver)
         timings['user']['frontend'].append(f)
         timings['user']['backend'].append(b)
+
+        time.sleep(.5)
 
     driver.quit()
 

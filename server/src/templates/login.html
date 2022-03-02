@@ -24,7 +24,7 @@
     </body>
     <script>
         function login(e, form) {
-            fetch(form.action, {body: new FormData(form), redirect:'follow'})
+            fetch(form.action, {method: 'POST', body: new FormData(form), redirect:'follow'})
         }
     </script>
 </html>
