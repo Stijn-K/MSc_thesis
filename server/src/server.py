@@ -36,8 +36,6 @@ def login():
 
         cookie = cookie_helper.generate_cookie(user, cert)
 
-        print(cookie)
-
         response = make_response(render_template('login.html', logged_in=True))
         response.set_cookie('session_cookie', cookie)
 
