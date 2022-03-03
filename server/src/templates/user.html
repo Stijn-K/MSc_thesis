@@ -11,7 +11,6 @@
         {% if success %}
             <h2 id="user">User: {{ result['username'] }}</h2>
             <h2 id="cookie">Cookie: {{ result['cookie'] }}</h2>
-            <h2 id="cert">Cert: {{ result['cert'] }}</h2>
         {% else %}
             <h2 id="error">Error: {{ result }}</h2>
         {% endif %}

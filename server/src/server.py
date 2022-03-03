@@ -18,7 +18,7 @@ _SERVER = os.getenv('SERVER', 'localhost')
 @app.route('/', methods=['GET'])
 @app.route('/alive', methods=['GET'])
 def alive():
-    return make_response(render_template('alive.html', client_cert=request.environ))
+    return make_response(render_template('alive.html'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -32,7 +32,11 @@ def login():
         if not user:
             return make_response(render_template('login.html', logged_in=False, error='Invalid credentials'))
 
-        cookie = cookie_helper.generate_cookie(user)
+        cert: OpenSSL.crypto.X509 = request.environ['peercert']
+
+        cookie = cookie_helper.generate_cookie(user, cert)
+
+        print(cookie)
 
         response = make_response(render_template('login.html', logged_in=True))
         response.set_cookie('session_cookie', cookie)
@@ -43,7 +47,9 @@ def login():
 @app.route('/user', methods=['GET'])
 def user():
     cookie = request.cookies.get('session_cookie')
-    success, result = cookie_helper.verify_cookie(cookie)
+    cert: OpenSSL.crypto.X509 = request.environ['peercert']
+
+    success, result = cookie_helper.verify_cookie(cookie, cert)
 
     response = make_response(render_template('user.html', success=success, result=result))
 
@@ -55,6 +61,7 @@ def initialize():
     app.logger.info('Initializing server...')
     app.logger.info('Initializing DB...')
     db.initialize_db()
+    cookie_helper.initialize_obc()
 
 
 @app.after_request
@@ -69,10 +76,8 @@ class PeerCertWSGIRequestHandler(werkzeug.serving.WSGIRequestHandler):
     def make_environ(self):
         environ = super(PeerCertWSGIRequestHandler, self).make_environ()
         x509_binary = self.connection.getpeercert(True)
-        print(x509_binary)
-        if x509_binary:
-            x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_ASN1, x509_binary)
-            environ['peercert'] = x509
+        x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_ASN1, x509_binary)
+        environ['peercert'] = x509
         return environ
 
 
