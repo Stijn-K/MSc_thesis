@@ -12,7 +12,7 @@
         {% if logged_in %}
             <h1 id="logged_in">Logged in!</h1>
         {% else %}
-            <form id="login-form" method="post" action="login" onsubmit="login(event, this)">
+            <form id="login-form" action="login" method="POST" onsubmit="login(e, this)">
                 <input id="username" name="username" type="text">
                 <input id="password" name="password" type="text">
                 <input id="submit" type="submit">
@@ -24,7 +24,18 @@
     </body>
     <script>
         function login(e, form) {
-            fetch(form.action, {method: 'POST', body: new FormData(form), redirect:'follow'})
+            e.preventDefault()
+            fetch('https://localhost:5000/login', {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url
+                }
+            })
         }
     </script>
 </html>

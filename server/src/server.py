@@ -1,13 +1,17 @@
-from flask import Flask, request, make_response, jsonify, render_template, redirect
+import os
+import time
+
+from flask import Flask, request, make_response, render_template, g
+
 import db_helpers as db
 import cookie as cookie_helper
-import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
 
 app = Flask(__name__)
-_SERVER = os.getenv('SERVER', 'localhost')
+_SERVER = os.getenv('SERVER', '127.0.0.1')
 
 
 @app.route('/', methods=['GET'])
@@ -52,8 +56,16 @@ def initialize():
     db.initialize_db()
 
 
+@app.before_request
+def before_request():
+    g.start_time = time.perf_counter_ns()
+
+
 @app.after_request
 def set_headers(response):
+    total_time = time.perf_counter_ns() - g.start_time
+    response.headers['request_time'] = total_time
+
     response.cache_control.no_store = True
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST'
@@ -61,4 +73,4 @@ def set_headers(response):
 
 
 if __name__ == '__main__':
-    app.run(host=_SERVER, port=5000, ssl_context='adhoc')
+    app.run(host=_SERVER, port=5000, ssl_context='adhoc', debug=True)
