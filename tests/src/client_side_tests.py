@@ -2,8 +2,6 @@ import os
 import time
 import sys
 
-from selenium import webdriver
-
 from seleniumwire import webdriver
 from seleniumwire.request import Request, Response
 
@@ -36,6 +34,8 @@ timings = {
 }
 
 
+# grab response time from response headers
+# time is returned in nanoseconds and converted to milliseconds
 def timing_response_interceptor(request: Request, response: Response) -> None:
     total_time = round(float(response.headers['request_time']) / 1_000_000, 2)
     if request.path == '/login' and request.method == 'POST':
@@ -90,7 +90,8 @@ def time_user(driver: WebDriver) -> None:
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'header')))
 
     if elem := driver.find_elements(By.ID, 'error'):
-        print(elem[0].text)
+        print(f'Error: {elem[0].text}')
+        return
 
     navigation_start = driver.execute_script("return window.performance.timing.navigationStart")
     response_start = driver.execute_script("return window.performance.timing.responseStart")
@@ -104,6 +105,8 @@ def time_user(driver: WebDriver) -> None:
 
 
 if __name__ == '__main__':
+    num_tests = 100
+
     options = webdriver.ChromeOptions()
     options.add_argument('ignore-certificate-errors')
     options.add_argument('--disk-cache-size 0')
@@ -126,7 +129,7 @@ if __name__ == '__main__':
         driver.quit()
         sys.exit(1)
 
-    for i in range(5):
+    for i in range(num_tests):
         print(i)
         driver.delete_all_cookies()
         time_login(driver)

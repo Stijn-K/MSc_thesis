@@ -63,9 +63,11 @@ def before_request():
 
 @app.after_request
 def set_headers(response):
+    # get elapsed time in nanoseconds and add to response headers
     total_time = time.perf_counter_ns() - g.start_time
     response.headers['request_time'] = total_time
 
+    # disable caching and set headers for CORS
     response.cache_control.no_store = True
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST'
