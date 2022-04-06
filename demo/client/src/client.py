@@ -70,7 +70,6 @@ def from_session(driver: WebDriver, cookie: str):
 if __name__ == '__main__':
     options = webdriver.ChromeOptions()
     options.add_argument('ignore-certificate-errors')
-    # options.add_argument('--auto-open-devtools-for-tabs')
     options.add_argument('--headless')
     driver = webdriver.Chrome(service=ChromeService(executable_path=_DRIVER_PATH), options=options)
 

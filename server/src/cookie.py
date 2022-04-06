@@ -30,4 +30,3 @@ def verify_cookie(cookie: str, **kwargs) -> tuple[bool, dict | str | None]:
         return True, user
     else:
         return False, 'Invalid fingerprint'
-
