@@ -72,7 +72,7 @@ def time_login(driver: WebDriver) -> None:
 
     driver.find_element(By.ID, 'submit').click()
 
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'header')))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'logged_in')))
 
     navigation_start = driver.execute_script("return window.performance.timing.navigationStart")
     response_start = driver.execute_script("return window.performance.timing.responseStart")
@@ -105,11 +105,16 @@ def time_user(driver: WebDriver) -> None:
 
 
 if __name__ == '__main__':
-    num_tests = 100
+    num_tests = 5
 
     options = webdriver.ChromeOptions()
-    options.add_argument('ignore-certificate-errors')
+    # ignore errors caused by self-signed certificates
+    options.add_argument('--ignore-certificate-errors')
+    # disable web security protocols (prevent CORS errors)
+    options.add_argument('--disable-web-security')
+    # disable chrome's built-in network cache
     options.add_argument('--disk-cache-size 0')
+    # run browser in headless mode
     options.add_argument('--headless')
 
     wire_options = {
