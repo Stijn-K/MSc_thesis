@@ -24,12 +24,18 @@ timings = {
     'login': {
         'frontend': [],
         'backend': [],
-        'server': []
+        'server': {
+            'GET': [],
+            'POST': [],
+        }
     },
     'user': {
         'frontend': [],
         'backend': [],
-        'server': []
+        'server': {
+            'GET': [],
+            'POST': [],
+        }
     },
 }
 
@@ -37,11 +43,11 @@ timings = {
 # grab response time from response headers
 # time is returned in nanoseconds and converted to milliseconds
 def timing_response_interceptor(request: Request, response: Response) -> None:
+    if request.path.endswith('.js') or request.path == '/alive':
+        return
+
     total_time = round(float(response.headers['request_time']) / 1_000_000, 2)
-    if request.path == '/login' and request.method == 'POST':
-        timings['login']['server'].append(total_time)
-    elif request.path == '/user' and request.method == 'GET':
-        timings['user']['server'].append(total_time)
+    timings[request.path[1:]]['server'][request.method].append(total_time)
 
 
 def get_url(endpoint: str, **params) -> str:
