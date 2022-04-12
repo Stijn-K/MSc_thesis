@@ -4,7 +4,6 @@ import time
 
 import hashlib
 import hmac
-import base64
 
 from seleniumwire import webdriver
 from seleniumwire.request import Request, Response
