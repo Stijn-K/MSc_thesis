@@ -12,7 +12,7 @@ services:
             -   default-network
 
     client:
-        build: client
+        build: demo/client
 #        restart: always
         volumes:
             -   ./server/src:/code
@@ -22,7 +22,7 @@ services:
             -   'server'
 
     adversary:
-        build: adversary
+        build: demo/adversary
         volumes:
             -   ./server/src:/code
         networks:

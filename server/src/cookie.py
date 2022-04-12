@@ -17,6 +17,14 @@ def generate_cookie(user: dict, **kwargs) -> str:
     return cookie
 
 
+def get_user_from_cookie(cookie: str) -> Optional[dict]:
+    user = db.get_user_by_cookie(cookie)
+    if not user:
+        return None
+
+    return user
+
+
 def verify_cookie(cookie: str, **kwargs) -> tuple[bool, dict | str | None]:
     user = db.get_user_by_cookie(cookie)
     if not user:
