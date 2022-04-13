@@ -1,7 +1,12 @@
 import os
 import sys
 
+import logging
+# logging.basicConfig(level=logging.DEBUG)
+
 from selenium import webdriver
+from seleniumwire import webdriver
+
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -30,7 +35,8 @@ def is_alive(driver: WebDriver) -> bool:
     try:
         driver.get(get_url('alive'))
         return True
-    except WebDriverException:
+    except WebDriverException as e:
+        print(e)
         return False
 
 
@@ -69,9 +75,17 @@ def from_session(driver: WebDriver, cookie: str):
 
 if __name__ == '__main__':
     options = webdriver.ChromeOptions()
-    options.add_argument('ignore-certificate-errors')
-    # options.add_argument('--headless')
-    driver = webdriver.Chrome(service=ChromeService(executable_path=_DRIVER_PATH), options=options)
+    options.add_argument('--ignore-certificate-errors')
+    options.add_argument('--headless')
+
+    wire_options = {
+        'mitm_client_certs': 'C:\\Users\\stijn\\Documents\\Studie\\MSc. Thesis\\client_certs\\ClientCertFull.pem'
+    }
+
+    driver = webdriver.Chrome(service=ChromeService(executable_path=_DRIVER_PATH),
+                              options=options,
+                              seleniumwire_options=wire_options
+                              )
 
     print('Checking server status...')
     if not is_alive(driver):
@@ -90,4 +104,4 @@ if __name__ == '__main__':
     print('Fetching user page for timing...')
     from_session(driver, result)
 
-    # driver.quit()
+    driver.quit()
