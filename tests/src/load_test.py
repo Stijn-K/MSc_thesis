@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 
 from locust import FastHttpUser, task, constant_throughput
 
@@ -10,6 +11,7 @@ load_dotenv()
 
 _SERVER = os.getenv('SERVER')
 _URL = f'https://{_SERVER}:5000'
+_ERROR_RE = re.compile(r'<h2 id="error">Error: (.*?)<\/h2>', re.DOTALL)
 
 
 class TestUser(FastHttpUser):
@@ -25,4 +27,6 @@ class TestUser(FastHttpUser):
 
     @task(1)
     def user(self):
-        self.client.get(f'{_URL}/user', verify=False)
+        with self.client.get(f'{_URL}/user', verify=False, catch_response=True) as response:
+            if error := _ERROR_RE.search(response.text):
+                response.failure(error.group(1))
