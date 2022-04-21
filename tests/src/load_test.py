@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-_DRIVER_PATH = os.getenv('CHROMEDRIVER')
 _SERVER = os.getenv('SERVER')
 _URL = f'https://{_SERVER}:5000'
 
