@@ -28,6 +28,9 @@
             fetch('/login', {
                 method: 'POST',
                 body: new FormData(form),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 credentials: "same-origin"
             }).then(response => {
                 response.text().then(text => {
