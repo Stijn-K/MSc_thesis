@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import sys
-from dotenv import load_dotenv
 
 from locust import FastHttpUser, task, constant_throughput
 from http.cookiejar import Cookie
@@ -13,6 +12,8 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -29,7 +30,7 @@ def get_url(endpoint: str, **params) -> str:
     return url
 
 
-def do_login(driver: WebDriver) -> tuple[bool, str|dict]:
+def do_login(driver: WebDriver) -> tuple[bool, str | dict]:
     driver.get(get_url('login'))
     username = driver.find_element(By.ID, 'username')
     username.clear()
