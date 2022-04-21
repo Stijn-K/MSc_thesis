@@ -25,7 +25,7 @@ def login():
         return make_response(render_template('login.html', logged_in=False))
 
     elif request.method == 'POST':
-        user = db.get_user_by_credentials(request.form['username'], request.form['password'])
+        user = db.get_user_by_credentials(request.json['username'], request.json['password'])
 
         if not user:
             return make_response(render_template('login.html', logged_in=False, error='Invalid credentials'))
