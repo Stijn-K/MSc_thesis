@@ -23,10 +23,10 @@ class TestUser(FastHttpUser):
     }
 
     def on_start(self):
-        self.client.post(f'{_URL}/login', json=self.data, verify=False)
+        self.client.post(f'{_URL}/login', json=self.data)
 
     @task(1)
     def user(self):
-        with self.client.get(f'{_URL}/user', verify=False, catch_response=True) as response:
+        with self.client.get(f'{_URL}/user') as response:
             if error := _ERROR_RE.search(response.text):
                 response.failure(error.group(1))
