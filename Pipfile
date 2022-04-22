@@ -7,8 +7,9 @@ name = "pypi"
 flask = "*"
 selenium = "*"
 python-dotenv = "*"
-requests = "*"
-requests-html = {editable = true, git = "https://github.com/psf/requests-html.git"}
+locust = "*"
+locust-plugins = "*"
+selenium-wire = "*"
 
 [dev-packages]
 
