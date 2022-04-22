@@ -5,10 +5,10 @@ name = "pypi"
 
 [packages]
 flask = "*"
-selenium = "*"
 python-dotenv = "*"
-locust = "*"
+selenium = "*"
 selenium-wire = "*"
+locust = "*"
 
 [dev-packages]
 
