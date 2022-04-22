@@ -9,6 +9,7 @@ python-dotenv = "*"
 selenium = "*"
 selenium-wire = "*"
 locust = "*"
+locust-plugins = "*"
 
 [dev-packages]
 
