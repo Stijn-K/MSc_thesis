@@ -8,7 +8,6 @@ flask = "*"
 selenium = "*"
 python-dotenv = "*"
 locust = "*"
-locust-plugins = "*"
 selenium-wire = "*"
 
 [dev-packages]
