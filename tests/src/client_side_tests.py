@@ -5,12 +5,15 @@ import sys
 from seleniumwire import webdriver
 from seleniumwire.request import Request, Response
 
-from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import WebDriverException, TimeoutException
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
+import json
+import numpy as np
 
 from dotenv import load_dotenv
 
@@ -43,7 +46,9 @@ timings = {
 # grab response time from response headers
 # time is returned in nanoseconds and converted to milliseconds
 def timing_response_interceptor(request: Request, response: Response) -> None:
-    if request.path.endswith('.js') or request.path == '/alive':
+    if request.path.endswith('.js') \
+            or request.path.endswith('.ico') \
+            or request.path == '/alive':
         return
 
     total_time = round(float(response.headers['request_time']) / 1_000_000, 2)
@@ -78,7 +83,11 @@ def time_login(driver: WebDriver) -> None:
 
     driver.find_element(By.ID, 'submit').click()
 
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'logged_in')))
+    try:
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'logged_in')))
+    except TimeoutException:
+        print('Login failed')
+        return
 
     navigation_start = driver.execute_script("return window.performance.timing.navigationStart")
     response_start = driver.execute_script("return window.performance.timing.responseStart")
@@ -113,6 +122,11 @@ def time_user(driver: WebDriver) -> None:
 if __name__ == '__main__':
     num_tests = 5
 
+    np.random.seed(0)
+    _NUM_PUFS = 5
+    _PUFS = [list(np.random.normal(size=10)) for _ in range(_NUM_PUFS)]
+    _PUF_ORDER = list(range(1, _NUM_PUFS + 1))
+
     options = webdriver.ChromeOptions()
     # ignore errors caused by self-signed certificates
     options.add_argument('--ignore-certificate-errors')
@@ -122,6 +136,7 @@ if __name__ == '__main__':
     options.add_argument('--disk-cache-size 0')
     # run browser in headless mode
     options.add_argument('--headless')
+
 
     wire_options = {
         'request_storage': 'memory',
@@ -139,6 +154,9 @@ if __name__ == '__main__':
         print('Server down, exiting')
         driver.quit()
         sys.exit(1)
+
+    driver.execute_script(f'window.localStorage.setItem("pufs","{json.dumps(_PUFS)}");')
+    driver.execute_script(f'window.localStorage.setItem("order","{json.dumps(_PUF_ORDER)}");')
 
     for i in range(num_tests):
         print(i)

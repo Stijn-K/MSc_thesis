@@ -5,12 +5,11 @@ name = "pypi"
 
 [packages]
 flask = "*"
-selenium = "*"
 python-dotenv = "*"
-requests = "*"
-requests-html = {editable = true, git = "https://github.com/psf/requests-html.git"}
-locust = "*"
+selenium = "*"
 selenium-wire = "*"
+locust = "*"
+locust-plugins = "*"
 
 [dev-packages]
 
