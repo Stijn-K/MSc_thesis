@@ -19,6 +19,7 @@ load_dotenv()
 _DRIVER_PATH = os.getenv('CHROMEDRIVER')
 _SERVER = os.getenv('SERVER')
 _URL = f'https://{_SERVER}:5000'
+_CLIENT_CERT = os.getenv('CLIENT_CERT')
 
 timings = {
     'login': {
@@ -130,7 +131,7 @@ if __name__ == '__main__':
     wire_options = {
         'request_storage': 'memory',
         'request_storage_max_size': 5,
-        'mitm_client_certs': 'C:\\Users\\stijn\\Documents\\Studie\\MSc. Thesis\\client_certs\\ClientCertFull.pem'
+        'mitm_client_certs': _CLIENT_CERT
     }
 
     driver = webdriver.Chrome(service=ChromeService(executable_path=_DRIVER_PATH),
