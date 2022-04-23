@@ -4,9 +4,9 @@ import os
 import ast
 
 import re
-challenges_re = re.compile(r'challenges = (\[.*?\])', re.DOTALL | re.MULTILINE)
 
-from locust import FastHttpUser, task, constant_throughput
+from locust import FastHttpUser, task, constant_throughput, SequentialTaskSet
+from locust_plugins.transaction_manager import TransactionManager
 
 from dotenv import load_dotenv
 
@@ -15,8 +15,10 @@ load_dotenv()
 _SERVER = os.getenv('SERVER')
 _URL = f'https://{_SERVER}:5000'
 
+challenges_re = re.compile(r'challenges = (\[.*?\])', re.DOTALL | re.MULTILINE)
 
-class TestUser(FastHttpUser):
+
+class TestUserTaskSet(SequentialTaskSet):
     wait_time = constant_throughput(1)
 
     data = {
@@ -27,16 +29,28 @@ class TestUser(FastHttpUser):
         }
     }
 
+    tm = None
+
     def on_start(self):
-        with self.client.get(f'{_URL}/login', verify=False) as response:
+        with self.client.get(f'{_URL}/login') as response:
             for challenge in ast.literal_eval(challenges_re.search(response.text).group(1)):
                 self.data['challenges'][challenge] = '11111'
-        self.client.post(f'{_URL}/login', json=self.data, verify=False)
+        self.client.post(f'{_URL}/login', json=self.data)
 
-    @task(1)
-    def user(self):
-        with self.client.get(f'{_URL}/user', verify=False) as response:
+        self.tm = TransactionManager()
+
+    @task
+    def get_user(self):
+        self.tm.start_transaction('user')
+        with self.client.get(f'{_URL}/user') as response:
             for challenge in ast.literal_eval(challenges_re.search(response.text).group(1)):
                 self.data['challenges'][challenge] = '11111'
 
-        self.client.post(f'{_URL}/user', json=self.data, verify=False)
+    @task
+    def post_user(self):
+        self.client.post(f'{_URL}/user', json=self.data)
+        self.tm.end_transaction('user')
+
+
+class TestUserTransaction(FastHttpUser):
+    tasks = [TestUserTaskSet]
