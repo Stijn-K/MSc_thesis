@@ -25,9 +25,10 @@
     <script>
         function login(e, form) {
             e.preventDefault()
+            let formData = Object.fromEntries((new FormData(form)).entries())
             fetch('/login', {
                 method: 'POST',
-                body: new FormData(form),
+                body: JSON.stringify(formData),
                 headers: {
                     'Content-Type': 'application/json'
                 },

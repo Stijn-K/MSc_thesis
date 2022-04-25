@@ -1,6 +1,7 @@
 import os
 import time
 import sys
+import json
 
 from seleniumwire import webdriver
 from seleniumwire.request import Request, Response
@@ -110,8 +111,13 @@ def time_user(driver: WebDriver) -> None:
     timings['user']['backend'].append(backend_performance)
 
 
+def write_to_file(data):
+    with open('../results/timings.json', 'w+') as f:
+        f.write(json.dumps(data))
+
+
 if __name__ == '__main__':
-    num_tests = 5
+    num_tests = 110
 
     options = webdriver.ChromeOptions()
     # ignore errors caused by self-signed certificates
@@ -150,3 +156,4 @@ if __name__ == '__main__':
     driver.quit()
 
     print(timings)
+    write_to_file(timings)
