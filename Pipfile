@@ -10,7 +10,7 @@ selenium = "*"
 selenium-wire = "*"
 locust = "*"
 locust-plugins = "*"
-plotly = "*"
+numpy = "*"
 
 [dev-packages]
 
