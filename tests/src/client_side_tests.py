@@ -1,6 +1,7 @@
 import os
 import time
 import sys
+import json
 
 import hashlib
 import hmac
@@ -22,6 +23,9 @@ load_dotenv()
 _DRIVER_PATH = os.getenv('CHROMEDRIVER')
 _SERVER = os.getenv('SERVER')
 _URL = f'https://{_SERVER}:5000'
+
+_RESULTS_PATH = os.getenv('RESULTS')
+_BRANCH = os.getenv('BRANCH')
 
 timings = {
     'login': {
@@ -151,8 +155,13 @@ def time_user(driver: WebDriver) -> None:
     timings['user']['backend'].append(backend_performance)
 
 
+def write_to_file(data):
+    with open(f'{_RESULTS_PATH}timings-{_BRANCH}.json', 'w+') as f:
+        f.write(json.dumps(data))
+
+
 if __name__ == '__main__':
-    num_tests = 5
+    num_tests = 110
 
     options = webdriver.ChromeOptions()
     # ignore errors caused by self-signed certificates
@@ -192,3 +201,4 @@ if __name__ == '__main__':
     driver.quit()
 
     print(timings)
+    write_to_file(timings)
