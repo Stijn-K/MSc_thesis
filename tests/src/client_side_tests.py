@@ -21,6 +21,9 @@ _DRIVER_PATH = os.getenv('CHROMEDRIVER')
 _SERVER = os.getenv('SERVER')
 _URL = f'https://{_SERVER}:5000'
 
+_RESULTS_PATH = os.getenv('RESULTS')
+_BRANCH = os.getenv('BRANCH')
+
 timings = {
     'login': {
         'frontend': [],
@@ -112,7 +115,7 @@ def time_user(driver: WebDriver) -> None:
 
 
 def write_to_file(data):
-    with open('../results/timings.json', 'w+') as f:
+    with open(f'{_RESULTS_PATH}timings-{_BRANCH}.json', 'w+') as f:
         f.write(json.dumps(data))
 
 
