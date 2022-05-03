@@ -125,7 +125,7 @@ def write_to_file(data):
 
 
 if __name__ == '__main__':
-    num_tests = 100
+    num_tests = 110
 
     options = webdriver.ChromeOptions()
     # ignore errors caused by self-signed certificates
