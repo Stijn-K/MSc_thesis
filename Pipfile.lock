@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e976466f47df30ef103e6ab796a66fb09123c658dd7c4b613fa9e56771d16442"
+            "sha256": "48ca36e77cd7440bdf364bf265c5c2b33b2ec8d1199bf928f0ef721ae9aeb807"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -535,6 +535,18 @@
                 "sha256:3d5845817ec8a4d5504379cc11bd570b038850ee49c4580bc0998c8fb1d327ad"
             ],
             "version": "==0.9"
+        },
+        "kaleido": {
+            "hashes": [
+                "sha256:4670985f28913c2d063c5734d125ecc28e40810141bdb0a46f15b76c1d45f23c",
+                "sha256:845819844c8082c9469d9c17e42621fbf85c2b237ef8a86ec8a8527f98b6512a",
+                "sha256:aa21cf1bf1c78f8fa50a9f7d45e1003c387bd3d6fe0a767cfbbf344b95bdc3a8",
+                "sha256:bb9a5d1f710357d5d432ee240ef6658a6d124c3e610935817b4b42da9c787c05",
+                "sha256:ca6f73e7ff00aaebf2843f73f1d3bacde1930ef5041093fe76b83a15785049a7",
+                "sha256:ecc72635860be616c6b7161807a65c0dbd9b90c6437ac96965831e2e24066552"
+            ],
+            "index": "pypi",
+            "version": "==0.2.1"
         },
         "locust": {
             "hashes": [

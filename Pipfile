@@ -11,6 +11,7 @@ selenium-wire = "*"
 locust = "*"
 locust-plugins = "*"
 numpy = "*"
+kaleido = "*"
 
 [dev-packages]
 
