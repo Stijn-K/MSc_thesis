@@ -52,6 +52,7 @@ def user():
 @app.before_first_request
 def initialize():
     app.logger.info('Initializing server...')
+    cookie_helper.initialize()
     app.logger.info('Initializing DB...')
     db.initialize_db()
 
@@ -75,4 +76,9 @@ def set_headers(response):
 
 
 if __name__ == '__main__':
-    app.run(host=_SERVER, port=5000, ssl_context='adhoc', debug=True)
+    app.run(
+        host=_SERVER,
+        port=5000,
+        ssl_context='adhoc',
+        debug=True
+    )
