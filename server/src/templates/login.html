@@ -22,7 +22,9 @@
         {% endif %}
     </body>
     <script>
+        let timer = {t0: 0, t1: 0}
         function login(e, form) {
+            timer.t0 = Date.now()
             e.preventDefault()
             let formData = Object.fromEntries((new FormData(form)).entries())
             fingerprint().then(result => {
@@ -36,6 +38,7 @@
                 }).then(response => {
                     response.text().then(text => {
                             document.body.innerHTML = text
+                            timer.t1 = Date.now()
                         }
                     )
                 })
