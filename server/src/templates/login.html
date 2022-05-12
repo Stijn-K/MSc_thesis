@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-</head>
-<body>
-    <h1 id="header">Login page</h1>
-    {% if logged_in %}
-        <h1 id="logged_in">Logged in!</h1>
-    {% else %}
-        <form id="login-form" method="post" action="login" onsubmit="login(event, this)">
-            <input id="username" name="username" type="text">
-            <input id="password" name="password" type="text">
-            <input id="submit" type="submit">
-        </form>
-    {% endif %}
-    {% if error %}
-        <h1 id="error">{{ error }}</h1>
-    {% endif %}
-</body>
-<script>
-    function login(e, form) {
+    <head>
+        <meta charset="UTF-8">
+        <title>Login</title>
+    </head>
+    <body>
+        <h1 id="header">Login page</h1>
+        {% if logged_in %}
+            <h1 id="logged_in">Logged in!</h1>
+        {% else %}
+            <form id="login-form" method="post" action="login" onsubmit="login(event, this)">
+                <input id="username" name="username" type="text">
+                <input id="password" name="password" type="text">
+                <input id="submit" type="submit">
+            </form>
+        {% endif %}
+        {% if error %}
+            <h1 id="error">{{ error }}</h1>
+        {% endif %}
+    </body>
+    <script>
+        let timer = {t0: 0, t1: 0}
+        function login(e, form) {
+            timer.t0 = Date.now()
             e.preventDefault()
             let formData = Object.fromEntries((new FormData(form)).entries())
             fetch('/login', {
@@ -33,9 +35,10 @@
             }).then(response => {
                 response.text().then(text => {
                         document.body.innerHTML = text
+                        timer.t1 = Date.now()
                     }
                 )
             })
         }
-</script>
+    </script>
 </html>
