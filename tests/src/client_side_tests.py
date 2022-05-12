@@ -29,16 +29,16 @@ _BRANCH = os.getenv('BRANCH')
 
 timings = {
     'login': {
-        'frontend': [],
-        'backend': [],
+        'get_page': [],
+        'post_login': [],
         'server': {
             'GET': [],
             'POST': [],
         }
     },
     'user': {
-        'frontend': [],
-        'backend': [],
+        'get_page': [],
+        'fetch_data': [],
         'server': {
             'GET': [],
             'POST': [],
@@ -77,6 +77,7 @@ def is_alive(driver: WebDriver) -> bool:
 
 def time_login(driver: WebDriver) -> None:
     driver.get(get_url('login'))
+
     username = driver.find_element(By.ID, 'username')
     username.clear()
     username.send_keys('test_user')
@@ -93,15 +94,16 @@ def time_login(driver: WebDriver) -> None:
         print('Login failed')
         return
 
-    navigation_start = driver.execute_script("return window.performance.timing.navigationStart")
-    response_start = driver.execute_script("return window.performance.timing.responseStart")
-    dom_complete = driver.execute_script("return window.performance.timing.domComplete")
+    navigation_start: int = driver.execute_script("return window.performance.timing.navigationStart")
+    dom_complete: int = driver.execute_script("return window.performance.timing.domComplete")
 
-    backend_performance = response_start - navigation_start
-    frontend_performance = dom_complete - response_start
+    timer: dict[str, int] = driver.execute_script('return timer')
 
-    timings['login']['frontend'].append(frontend_performance)
-    timings['login']['backend'].append(backend_performance)
+    get_page_time = dom_complete - navigation_start
+    post_login = timer['t1'] - timer['t0']
+
+    timings['login']['get_page'].append(get_page_time)
+    timings['login']['post_login'].append(post_login)
 
 
 def time_user(driver: WebDriver) -> None:
@@ -112,15 +114,16 @@ def time_user(driver: WebDriver) -> None:
         print(f'Error: {elem[0].text}')
         return
 
-    navigation_start = driver.execute_script("return window.performance.timing.navigationStart")
-    response_start = driver.execute_script("return window.performance.timing.responseStart")
-    dom_complete = driver.execute_script("return window.performance.timing.domComplete")
+    navigation_start: int = driver.execute_script("return window.performance.timing.navigationStart")
+    dom_complete: int = driver.execute_script("return window.performance.timing.domComplete")
 
-    backend_performance = response_start - navigation_start
-    frontend_performance = dom_complete - response_start
+    timer: dict[str, int] = driver.execute_script('return timer')
 
-    timings['user']['frontend'].append(frontend_performance)
-    timings['user']['backend'].append(backend_performance)
+    get_page_time = dom_complete - navigation_start
+    fetch_data = timer['t1'] - timer['t0']
+
+    timings['user']['get_page'].append(get_page_time)
+    timings['user']['fetch_data'].append(fetch_data)
 
 
 def write_to_file(data):

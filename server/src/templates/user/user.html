@@ -6,7 +6,9 @@
     </head>
     <body>
         <script>
+            let timer = {t0: 0, t1: 0}
             document.addEventListener('DOMContentLoaded', () => {
+                timer.t0 = Date.now()
                 const challenges = {{ challenges | safe }};
                 let body = get_responses(challenges)
                 let json = JSON.stringify(body)
@@ -19,6 +21,7 @@
                 }).then(response => {
                     response.text().then(re => {
                         document.body.innerHTML += re
+                        timer.t1 = Date.now()
                     })
                 })
             })
