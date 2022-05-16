@@ -28,6 +28,7 @@ def disable_ssl_warnings():
 
 
 class TestUser(HttpUser):
+    host = _URL
     wait_time = constant_throughput(1)
 
     data = {
