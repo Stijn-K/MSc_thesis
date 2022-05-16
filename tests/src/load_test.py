@@ -19,6 +19,7 @@ challenges_re = re.compile(r'challenges = (\[.*?\])', re.DOTALL | re.MULTILINE)
 
 
 class TestUserTaskSet(SequentialTaskSet):
+    host = _URL
     wait_time = constant_throughput(1)
 
     data = {
