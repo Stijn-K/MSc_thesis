@@ -14,6 +14,7 @@ _URL = f'https://{_SERVER}:5000'
 
 
 class TestUserTaskSet(SequentialTaskSet):
+    host = _URL
     wait_time = constant_throughput(1)
 
     data = {
