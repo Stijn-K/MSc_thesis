@@ -15,6 +15,7 @@ _ERROR_RE = re.compile(r'<h2 id="error">Error: (.*?)<\/h2>', re.DOTALL)
 
 
 class TestUser(FastHttpUser):
+    host = _URL
     wait_time = constant_throughput(1)
 
     data = {
