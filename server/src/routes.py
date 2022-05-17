@@ -1,16 +1,17 @@
-from flask import Flask, request, make_response, render_template, g
-import db_helpers as db
-import cookie as cookie_helper
-import os
+from flask import request, make_response, render_template, g
+import src.db_helpers as db
+import src.cookie as cookie_helper
+from src import app
+
 import time
 
+import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__)
-_SERVER = os.getenv('SERVER', 'localhost')
-_PORT = 5000
+_SERVER = os.getenv("SERVER")
+_PORT = os.getenv("PORT")
 
 
 @app.route('/', methods=['GET'])
@@ -74,7 +75,3 @@ def set_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST'
     return response
-
-
-if __name__ == '__main__':
-    app.run(debug=True, host=_SERVER, port=_PORT, ssl_context='adhoc')
