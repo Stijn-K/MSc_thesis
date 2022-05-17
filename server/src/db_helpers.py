@@ -21,7 +21,10 @@ def as_dict(results: db.Model | list[db.Model]) -> dict | list[dict]:
 
 
 def initialize_db() -> None:
-    db.metadata.drop_all(db.engine)
+    tables = db.engine.table_names()
+    for table in tables:
+        db.engine.execute(f'DROP TABLE {table} CASCADE')
+
     db.create_all()
     db.session.add(User(username='test_user', password='12345'))
     db.session.commit()
