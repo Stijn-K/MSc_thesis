@@ -7,7 +7,7 @@ import hmac
 
 from OpenSSL.crypto import X509
 
-import db_helpers as db
+import src.db_helpers as db
 
 _LONG_TERM_KEY: bytes | None = None
 
@@ -20,7 +20,7 @@ def initialize_obc() -> None:
 def generate_cookie(user: dict, certificate: X509) -> str:
     cert = certificate.to_cryptography()
 
-    v = 'this_is_a_session_cookie'
+    v = 'this_is_a_cookie'
     f = cert.fingerprint(hashes.SHA256())
 
     m = hmac.new(_LONG_TERM_KEY, v.encode() + f, hashlib.sha256).hexdigest()
