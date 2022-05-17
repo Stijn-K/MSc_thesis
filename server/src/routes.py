@@ -1,7 +1,8 @@
-import os
 import time
 
-from flask import Flask, request, make_response, render_template, g
+from flask import request, make_response, render_template, g
+
+from src import app
 
 import db_helpers as db
 import cookie as cookie_helper
@@ -9,9 +10,6 @@ import cookie as cookie_helper
 from dotenv import load_dotenv
 
 load_dotenv()
-
-app = Flask(__name__)
-_SERVER = os.getenv('SERVER', '127.0.0.1')
 
 
 @app.route('/', methods=['GET'])
