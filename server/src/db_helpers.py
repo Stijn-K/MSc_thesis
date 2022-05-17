@@ -1,44 +1,47 @@
-import sqlite3
+from __future__ import annotations
 
-_DB = '../db/db.sqlite'
+from src import db
 
 
-def dict_factory(cursor, row):
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    cookie = db.Column(db.String(255), nullable=True)
+    fingerprint = db.Column(db.String(255), nullable=True)
+
+
+def as_dict(results: db.Model | list[db.Model]) -> dict | list[dict]:
+    if not results:
+        return {}
+    elif isinstance(results, list):
+        return [{column: str(getattr(row, column)) for column in row.__table__.c.keys()} for row in results]
+    else:
+        return {column: str(getattr(results, column)) for column in results.__table__.c.keys()}
 
 
 def initialize_db() -> None:
-    with sqlite3.connect(_DB) as conn:
-        with open('../db/init.sql') as f:
-            conn.executescript(f.read())
+    db.metadata.drop_all(db.engine)
+    db.create_all()
+    db.session.add(User(username='test_user', password='12345'))
+    db.session.commit()
 
 
 def get_user_by_credentials(username: str, password: str) -> dict:
-    with sqlite3.connect(_DB) as conn:
-        conn.row_factory = dict_factory
-        cur = conn.cursor()
-        cur.execute(f'SELECT * FROM users WHERE username="{username}" AND password="{password}"')
-        return cur.fetchone()
+    user = User.query.filter_by(username=username, password=password).first()
+    return as_dict(user)
 
 
 def get_user_by_cookie(cookie: str) -> dict:
-    with sqlite3.connect(_DB) as conn:
-        conn.row_factory = dict_factory
-        cur = conn.cursor()
-        cur.execute(f'SELECT * FROM users WHERE cookie="{cookie}"')
-        return cur.fetchone()
+    user = User.query.filter_by(cookie=cookie).first()
+    return as_dict(user)
 
 
 def set_user_cookie(username: str, cookie: str) -> None:
-    with sqlite3.connect(_DB) as conn:
-        cur = conn.cursor()
-        cur.execute(f'UPDATE users SET cookie="{cookie}" WHERE username="{username}"')
+    User.query.filter_by(username=username).update({'cookie': cookie})
+    db.session.commit()
 
 
 def set_user_fingerprint(username: str, fingerprint: str) -> None:
-    with sqlite3.connect(_DB) as conn:
-        cur = conn.cursor()
-        cur.execute(f'UPDATE users SET fingerprint="{fingerprint}" WHERE username="{username}"')
+    User.query.filter_by(username=username).update({'fingerprint': fingerprint})
+    db.session.commit()
