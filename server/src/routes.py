@@ -1,16 +1,10 @@
-from flask import Flask, request, make_response, render_template, g
-import db_helpers as db
-import cookie as cookie_helper
-import os
+from flask import request, make_response, render_template, g
+import src.db_helpers as db
+import src.cookie as cookie_helper
 import json
 import time
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
-app = Flask(__name__)
-_SERVER = os.getenv('SERVER', '127.0.0.1')
+from src import app
 
 
 @app.route('/', methods=['GET'])
@@ -84,7 +78,3 @@ def set_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST'
     return response
-
-
-if __name__ == '__main__':
-    app.run(debug=True, host=_SERVER, port=5000, ssl_context='adhoc')

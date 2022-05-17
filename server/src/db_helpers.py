@@ -1,69 +1,68 @@
 from __future__ import annotations
 
-import sqlite3
-
-_DB = '../db/db.sqlite'
+from src import db
 
 
-def dict_factory(cursor, row):
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    cookie = db.Column(db.String(255), nullable=True)
+
+
+class Challenge(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    challenge = db.Column(db.String(255), nullable=False)
+    response = db.Column(db.String(255), nullable=False)
+
+
+def as_dict(results: db.Model | list[db.Model]) -> dict | list[dict] | None:
+    if not results:
+        return None
+    elif isinstance(results, list):
+        return [{column: str(getattr(row, column)) for column in row.__table__.c.keys()} for row in results]
+    else:
+        return {column: str(getattr(results, column)) for column in results.__table__.c.keys()}
 
 
 def initialize_db() -> None:
-    with sqlite3.connect(_DB) as conn:
-        with open('../db/init.sql') as f:
-            conn.executescript(f.read())
+    db.metadata.drop_all(db.engine)
+    db.create_all()
+    db.session.add(User(username='test_user', password='12345'))
+    db.session.commit()
 
 
 def get_user_by_credentials(username: str, password: str) -> dict:
-    with sqlite3.connect(_DB) as conn:
-        conn.row_factory = dict_factory
-        cur = conn.cursor()
-        cur.execute(f'SELECT * FROM users WHERE username="{username}" AND password="{password}"')
-        return cur.fetchone()
+    user = User.query.filter_by(username=username, password=password).first()
+    return as_dict(user)
 
 
 def get_user_by_cookie(cookie: str) -> dict:
-    with sqlite3.connect(_DB) as conn:
-        conn.row_factory = dict_factory
-        cur = conn.cursor()
-        cur.execute(f'SELECT * FROM users WHERE cookie="{cookie}"')
-        return cur.fetchone()
+    user = User.query.filter_by(cookie=cookie).first()
+    return as_dict(user)
 
 
 def set_user_cookie(username: str, cookie: str) -> None:
-    with sqlite3.connect(_DB) as conn:
-        cur = conn.cursor()
-        cur.execute(f'UPDATE users SET cookie="{cookie}" WHERE username="{username}"')
+    User.query.filter_by(username=username).update({'cookie': cookie})
+    db.session.commit()
 
 
 def get_user_challenges(user_id: int) -> list[dict[str, str]] | None:
-    with sqlite3.connect(_DB) as conn:
-        conn.row_factory = dict_factory
-        cur = conn.cursor()
-        cur.execute(f'SELECT * FROM challenges WHERE user_id={user_id}')
-        return cur.fetchall()
+    return as_dict(Challenge.query.filter_by(user_id=user_id).all())
 
 
 def set_user_challenges(user_id: int, challenges: dict[str, str]) -> None:
-    with sqlite3.connect(_DB) as conn:
-        cur = conn.cursor()
-        for challenge, response in challenges.items():
-            cur.execute(f'INSERT INTO challenges (user_id, challenge, response) VALUES ({user_id}, "{challenge}", "{response}")')
+    db.session.add_all([
+        Challenge(user_id=user_id, challenge=challenge, response=response) for challenge, response in challenges.items()
+    ])
+    db.session.commit()
 
 
 def remove_user_challenge(challenge_id: int) -> None:
-    with sqlite3.connect(_DB) as conn:
-        cur = conn.cursor()
-        cur.execute(f'DELETE FROM challenges WHERE id={challenge_id}')
+    Challenge.query.filter_by(id=challenge_id).delete()
+    db.session.commit()
 
 
 def verify_challenge(user_id: int, challenge: str, response: str) -> dict[str, str]:
-    with sqlite3.connect(_DB) as conn:
-        conn.row_factory = dict_factory
-        cur = conn.cursor()
-        cur.execute(f'SELECT * FROM challenges WHERE user_id={user_id} AND challenge="{challenge}" AND response="{response}"')
-        return cur.fetchone()
+    return as_dict(Challenge.query.filter_by(user_id=user_id, challenge=challenge, response=response).first())
