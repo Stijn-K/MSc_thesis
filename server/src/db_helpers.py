@@ -12,7 +12,7 @@ class User(db.Model):
 
 class Challenge(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
     challenge = db.Column(db.String(255), nullable=False)
     response = db.Column(db.String(255), nullable=False)
 
