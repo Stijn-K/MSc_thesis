@@ -5,9 +5,9 @@ from src import db
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(80), nullable=False)
-    cookie = db.Column(db.String(80), nullable=True)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    cookie = db.Column(db.String(255), nullable=True)
 
 
 def as_dict(results: db.Model | list[db.Model]) -> dict | list[dict]:

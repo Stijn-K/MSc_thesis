@@ -7,10 +7,6 @@ from src import app
 import src.db_helpers as db
 import src.cookie as cookie_helper
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
 
 @app.route('/', methods=['GET'])
 @app.route('/alive', methods=['GET'])
