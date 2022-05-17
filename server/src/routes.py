@@ -4,8 +4,8 @@ from flask import request, make_response, render_template, g
 
 from src import app
 
-import db_helpers as db
-import cookie as cookie_helper
+import src.db_helpers as db
+import src.cookie as cookie_helper
 
 from dotenv import load_dotenv
 
@@ -70,7 +70,3 @@ def set_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST'
     return response
-
-
-if __name__ == '__main__':
-    app.run(host=_SERVER, port=5000, ssl_context='adhoc', debug=True)

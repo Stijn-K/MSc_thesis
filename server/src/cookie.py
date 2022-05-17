@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Optional
 
-import db_helpers as db
+import src.db_helpers as db
 
 
 def generate_cookie(user: dict, **kwargs) -> str:
-    cookie = 'this_is_a_session_cookie'
+    cookie = 'this_is_a_cookie'
 
     db.set_user_cookie(user['username'], cookie)
 

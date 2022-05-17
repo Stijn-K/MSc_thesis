@@ -12,6 +12,10 @@ locust = "*"
 locust-plugins = "*"
 numpy = "*"
 kaleido = "*"
+mysql-connector-python = "*"
+flask-sqlalchemy = "*"
+pymysql = "*"
+mysql-connector = "*"
 
 [dev-packages]
 
