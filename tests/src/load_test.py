@@ -6,9 +6,10 @@ import ast
 import re
 
 import gevent
-from locust import FastHttpUser, task, constant_throughput, SequentialTaskSet
+import locust
+from locust import FastHttpUser, task, constant_throughput
 from locust.env import Environment
-from locust.stats import stats_history, StatsCSVFileWriter
+from locust.stats import stats_history, StatsCSVFileWriter, stats_printer
 from locust_plugins.transaction_manager import TransactionManager
 
 from dotenv import load_dotenv
@@ -25,9 +26,11 @@ _ERROR_RE = re.compile(r'<h2 id="error">Error: (.*?)</h2>', re.DOTALL)
 challenges_re = re.compile(r'challenges = (\[.*?\])', re.DOTALL | re.MULTILINE)
 
 
-class TestUserTaskSet(SequentialTaskSet):
+class TestUser(FastHttpUser):
     host = _URL
     wait_time = constant_throughput(1)
+
+    number_of_clients = 0
 
     data = {
         'username': 'test_user',
@@ -45,30 +48,33 @@ class TestUserTaskSet(SequentialTaskSet):
                 self.data['challenges'][challenge] = '11111'
         self.client.post(f'{_URL}/login', json=self.data)
 
+        # hacks required to get the transaction manager to output results if not ran from the command line
+        TransactionManager.transactions_filename = os.path.join(_RESULTS, 'load_tests', _BRANCH, f'{self.number_of_clients}_transactions.csv')
+        TransactionManager.transactions_summary_filename = os.path.join(_RESULTS, 'load_tests', _BRANCH, f'{self.number_of_clients}_transactions_summary.csv')
+        TransactionManager.log_transactions_in_file = True
+        TransactionManager._create_results_log()
+
         self.tm = TransactionManager()
 
     @task
-    def get_user(self):
+    def user(self):
         self.tm.start_transaction('user')
         with self.client.get(f'{_URL}/user') as response:
             for challenge in ast.literal_eval(challenges_re.search(response.text).group(1)):
                 self.data['challenges'][challenge] = '11111'
 
-    @task
-    def post_user(self):
         self.client.post(f'{_URL}/user', json=self.data)
         self.tm.end_transaction('user')
 
 
-class TestUserTransaction(FastHttpUser):
-    host = _URL
-    tasks = [TestUserTaskSet]
-
 
 def start_locust(users: int, spawn_rate: int, time_min: int) -> None:
     # Setup Environment and Runner
-    env = Environment(user_classes=[TestUserTransaction])
+    TestUser.number_of_clients = users
+    env = Environment(user_classes=[TestUser])
     env.create_local_runner()
+
+    locust.events.init.fire(environment=env, runner=env.runner)
 
     # CSV Writer
     stats_path = os.path.join(_RESULTS, 'load_tests', _BRANCH, f'{users}')
@@ -94,12 +100,15 @@ def start_locust(users: int, spawn_rate: int, time_min: int) -> None:
     # wait for all greenlets to finish
     env.runner.greenlet.join()
 
+    locust.events.test_stop.fire()
+
 
 if __name__ == '__main__':
     # tests = [(5, 1, 1), (10, 2, 1), (20, 5, 1), (50, 10, 1), (100, 20, 1)]
-    tests = [(1,1,1)]
+    tests = [(1,1,.1)]
     num_tests = len(tests)
     for num, (users, spawn_rate, time_min) in enumerate(tests, 1):
         print(f'{num}/{num_tests}: Running test with {users} users, {spawn_rate} spawn rate, {time_min} minutes')
         start_locust(users, spawn_rate, time_min)
-        print(f'Test finished')
+        print(f'Test {num}/{num_tests} finished')
+
