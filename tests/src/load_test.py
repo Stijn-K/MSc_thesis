@@ -104,8 +104,7 @@ def start_locust(users: int, spawn_rate: int, time_min: int) -> None:
 
 
 if __name__ == '__main__':
-    # tests = [(5, 1, 1), (10, 2, 1), (20, 5, 1), (50, 10, 1), (100, 20, 1)]
-    tests = [(1,1,.1)]
+    tests = [(5, 1, 1), (10, 2, 1), (20, 5, 1), (50, 10, 1), (100, 20, 1)]
     num_tests = len(tests)
     for num, (users, spawn_rate, time_min) in enumerate(tests, 1):
         print(f'{num}/{num_tests}: Running test with {users} users, {spawn_rate} spawn rate, {time_min} minutes')
