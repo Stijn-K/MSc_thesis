@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "code"
+version = "0.1.0"
+description = ""
+authors = ["Stijn Kramer <16038058+Stijn-K@users.noreply.github.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Flask = "^2.1.2"
+python-dotenv = "^0.20.0"
+Flask-SQLAlchemy = "^2.5.1"
+cryptography = "^37.0.2"
+selenium = "^4.2.0"
+selenium-wire = "^4.6.4"
+PyMySQL = "^1.0.2"
+locust = "^2.9.0"
+locust-plugins = "^2.6.7"
+plotly = "^5.8.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
