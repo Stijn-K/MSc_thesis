@@ -35,13 +35,13 @@ def login():
 
 @app.route('/user', methods=['GET', 'POST'])
 def user():
-    cookie = request.cookies.get('session_cookie')
-    user = cookie_helper.get_user_from_cookie(cookie)
-
-    if not user:
-        return make_response(render_template('user/user.html', error='Invalid cookie'))
-
     if request.method == 'GET':
+        cookie = request.cookies.get('session_cookie')
+        user = cookie_helper.get_user_from_cookie(cookie)
+
+        if not user:
+            return make_response(render_template('user/user.html', error='Invalid cookie'))
+
         challenge = cookie_helper.get_challenge(user['id'])
         if not challenge:
             return make_response(render_template('user/user.html', error='No challenge found'))
