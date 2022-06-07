@@ -56,6 +56,7 @@ def get_user_challenges(user_id: int) -> list[dict[str, str]] | None:
 
 
 def set_user_challenges(user_id: int, challenges: dict[str, str]) -> None:
+    Challenge.query.filter_by(user_id=user_id).delete()
     db.session.add_all([
         Challenge(user_id=user_id, challenge=challenge, response=response) for challenge, response in challenges.items()
     ])
