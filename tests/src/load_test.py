@@ -1,20 +1,16 @@
 from __future__ import annotations
 
-import gevent
-import gevent.monkey
-gevent.monkey.patch_all()
-
 import os
 import re
 import glob
 
-from contextlib import contextmanager
-import warnings
-import urllib3
-
+import gevent
 from locust import HttpUser, task, constant_throughput
 from locust.env import Environment
 from locust.stats import stats_history, StatsCSVFileWriter
+
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from dotenv import load_dotenv
 
@@ -29,12 +25,6 @@ _CLIENT_CERT = os.getenv('CLIENT_CERT')
 _ERROR_RE = re.compile(r'<h2 id="error">Error: (.*?)<\/h2>', re.DOTALL)
 
 
-@contextmanager
-def disable_ssl_warnings():
-    with warnings.catch_warnings():
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        yield None
-
 
 class TestUser(HttpUser):
     host = _URL
@@ -45,15 +35,13 @@ class TestUser(HttpUser):
     }
 
     def on_start(self):
-        with disable_ssl_warnings():
-            self.client.post(f'{_URL}/login', json=self.data, verify=False, cert=_CLIENT_CERT)
+        self.client.post(f'{_URL}/login', json=self.data, verify=False, cert=_CLIENT_CERT)
 
     @task(1)
     def user(self):
-        with disable_ssl_warnings():
-            with self.client.get(f'{_URL}/user', cert=_CLIENT_CERT, verify=False, catch_response=True) as response:
-                if error := _ERROR_RE.search(response.text):
-                    response.failure(error.group(1))
+        with self.client.get(f'{_URL}/user', cert=_CLIENT_CERT, verify=False, catch_response=True) as response:
+            if error := _ERROR_RE.search(response.text):
+                response.failure(error.group(1))
 
 
 def start_locust(users: int, spawn_rate: int, time_min: int, stats_path: str) -> None:
