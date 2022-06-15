@@ -103,7 +103,7 @@ def start_locust(users: int, spawn_rate: int, time_min: int, stats_path: str) ->
 
 
 if __name__ == '__main__':
-    tests = [(10, 5, 1), (20, 5, 1), (40, 10, 1), (80, 10, 1), (160, 20, 1)]
+    tests = [(1, 5, 1), (2, 5, 1), (5, 5, 1), (10, 5, 1), (20, 5, 1), (50, 10, 1), (100, 20, 1)]
     num_tests = len(tests)
 
     path = os.path.join(_RESULTS, 'load_tests', _BRANCH)
