@@ -50,7 +50,7 @@ class TestUser(FastHttpUser):
     }
 
     def on_start(self):
-        with self.client.post(f'{_URL}/login', json=self.data) as response:
+        with self.client.post(f'{_URL}/login', json=self.data, catch_response=True) as response:
             otc_values = response.headers['X-OTC-SET'].split(',')
             self._OTC['cid'] = otc_values[0]
             self._OTC['domain'] = otc_values[1]
@@ -73,6 +73,8 @@ class TestUser(FastHttpUser):
             if response.text:
                 if error := _ERROR_RE.search(response.text):
                     response.failure(error.group(1))
+            else:
+                response.failure('Empty response')
 
 
 def start_locust(users: int, spawn_rate: int, time_min: int, stats_path: str) -> None:
@@ -105,7 +107,7 @@ def start_locust(users: int, spawn_rate: int, time_min: int, stats_path: str) ->
 
 
 if __name__ == '__main__':
-    tests = [(1, 5, .5), (2, 5, .5), (5, 5, .5), (10, 5, .5), (20, 5, .5), (40, 10, .5), (80, 20, .5), (160, 40, .5)]
+    tests = [(1, 5, .5), (2, 5, .5), (5, 5, .5), (10, 5, .5), (20, 5, .5), (40, 10, .5), (80, 20, .5), (160, 40, .75)]
     num_tests = len(tests)
 
     path = os.path.join(_RESULTS, 'load_tests', _BRANCH)
