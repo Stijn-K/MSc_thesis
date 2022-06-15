@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import gevent
+import gevent.monkey
+gevent.monkey.patch_all()
+
 import os
 import re
 import glob
@@ -8,7 +12,6 @@ from contextlib import contextmanager
 import warnings
 import urllib3
 
-import gevent
 from locust import HttpUser, task, constant_throughput
 from locust.env import Environment
 from locust.stats import stats_history, StatsCSVFileWriter
