@@ -35,7 +35,7 @@ ssl_context.verify_mode = ssl.CERT_REQUIRED
 
 if __name__ == '__main__':
     app.run(
-            debug=True,
+            debug=False,
             host=_SERVER,
             port=5000,
             request_handler=PeerCertWSGIRequestHandler,
