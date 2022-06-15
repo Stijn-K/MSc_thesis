@@ -33,9 +33,10 @@ class TestUser(FastHttpUser):
 
     @task(1)
     def user(self):
-        with self.client.get(f'{_URL}/user') as response:
-            if error := _ERROR_RE.search(response.text):
-                response.failure(error.group(1))
+        with self.client.get(f'{_URL}/user', catch_response=True) as response:
+            if response.text:
+                if error := _ERROR_RE.search(response.text):
+                    response.failure(error.group(1))
 
 
 def start_locust(users: int, spawn_rate: int, time_min: int, stats_path: str) -> None:
@@ -68,7 +69,7 @@ def start_locust(users: int, spawn_rate: int, time_min: int, stats_path: str) ->
 
 
 if __name__ == '__main__':
-    tests = [(10, 5, 1), (20, 5, 1), (40, 10, 1), (80, 10, 1), (160, 20, 1)]
+    tests = [(1, 5, .5), (2, 5, .5), (5, 5, .5), (10, 5, .5), (20, 5, .5), (40, 10, .5), (80, 20, .5), (160, 40, .5)]
     num_tests = len(tests)
 
     path = os.path.join(_RESULTS, 'load_tests', _BRANCH)
