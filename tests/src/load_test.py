@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import glob
 
 import gevent
 import locust
@@ -54,7 +55,7 @@ class TestUser(FastHttpUser):
         self.tm.end_transaction('user')
 
 
-def start_locust(users: int, spawn_rate: int, time_min: int) -> None:
+def start_locust(users: int, spawn_rate: int, time_min: int, stats_path: str) -> None:
     # Setup Environment and Runner
     TestUser.number_of_clients = users
     env = Environment(user_classes=[TestUser])
@@ -63,7 +64,6 @@ def start_locust(users: int, spawn_rate: int, time_min: int) -> None:
     locust.events.init.fire(environment=env, runner=env.runner)
 
     # CSV Writer
-    stats_path = os.path.join(_RESULTS, 'load_tests', _BRANCH, f'{users}')
     csv_writer = StatsCSVFileWriter(
         environment=env,
         base_filepath=stats_path,
@@ -90,9 +90,15 @@ def start_locust(users: int, spawn_rate: int, time_min: int) -> None:
 
 
 if __name__ == '__main__':
-    tests = [(5, 1, 1), (10, 2, 1), (20, 5, 1), (50, 10, 1), (100, 20, 1)]
+    tests = [(10, 5, 1), (20, 5, 1), (40, 10, 1), (80, 10, 1), (160, 20, 1)]
     num_tests = len(tests)
+
+    path = os.path.join(_RESULTS, 'load_tests', _BRANCH)
+    for f in glob.glob(path + '/*'):
+        os.remove(f)
+
     for num, (users, spawn_rate, time_min) in enumerate(tests, 1):
         print(f'{num}/{num_tests}: Running test with {users} users, {spawn_rate} spawn rate, {time_min} minutes')
-        start_locust(users, spawn_rate, time_min)
-        print(f'Test {num}/{num_tests} finished')
+        stats_path = os.path.join(path, str(users))
+        start_locust(users, spawn_rate, time_min, stats_path)
+        print(f'Test finished')
