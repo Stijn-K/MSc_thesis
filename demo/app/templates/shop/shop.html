@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block header %}
+    <h1>Shop</h1>
+{% endblock %}
+
+{% block content %}
+    <h2>Products:</h2>
+    <hr>
+    {% for product in products %}
+        <div class="product">
+            <img src="{{ product.image }}" alt="{{ product.name }}">
+            <h2>{{ product.name }}</h2>
+            <p>Description: {{ product.description }}</p>
+            <p>Price: {{ product.price }}</p>
+            <a href="{{ url_for('product', product_id=product.id) }}">View</a>
+        </div>
+        <hr>
+    {% endfor %}
+
+{% endblock %}

@@ -17,6 +17,7 @@ locust = "^2.9.0"
 locust-plugins = "^2.6.7"
 plotly = "^5.8.0"
 numpy = "^1.22.4"
+Flask-Login = "^0.6.1"
 
 [tool.poetry.dev-dependencies]
 

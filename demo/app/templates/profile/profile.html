@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block header %}
+    <h1>Profile</h1>
+{% endblock %}
+
+{% block content %}
+    <h2>Welcome {{ user.username }}!</h2>
+    <hr>
+    <p>Billing Address: {{ user.billing_address }}</p>
+    <p>Shipping Address: {{ user.shipping_address }}</p>
+    <p>Credit Card: {{ user.credit_card }}</p>
+    <p>Credit Card Expiration: {{ user.credit_card_expiration }}</p>
+    <p>Credit Card Security Code: {{ user.credit_card_cvv }}</p>
+{% endblock %}
