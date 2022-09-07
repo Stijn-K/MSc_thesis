@@ -60,10 +60,13 @@ class TestUser(FastHttpUser):
     def user(self):
         self.tm.start_transaction('user')
         with self.client.get(f'{_URL}/user') as response:
-            for challenge in ast.literal_eval(challenges_re.search(response.text).group(1)):
-                self.data['challenges'][challenge] = '11111'
+            challenge = ast.literal_eval(challenges_re.search(response.text).group(1))[0]
 
-        self.client.post(f'{_URL}/user', json=self.data)
+        with self.client.post(f'{_URL}/user', json={challenge: '11111'}, catch_response=True) as response:
+            error = _ERROR_RE.search(response.text)
+            if error:
+                response.failure(error.group(1))
+
         self.tm.end_transaction('user')
 
 
@@ -103,7 +106,8 @@ def start_locust(users: int, spawn_rate: int, time_min: int, stats_path: str) ->
 
 
 if __name__ == '__main__':
-    tests = [(1, 5, 1), (2, 5, 1), (5, 5, 1), (10, 5, 1), (20, 5, 1)]
+    tests = [(1, 5, 1), (2, 5, 1), (5, 5, 1), (10, 5, 1), (20, 5, 1), (50, 10, 1), (100, 20, 1)]
+
     num_tests = len(tests)
 
     path = os.path.join(_RESULTS, 'load_tests', _BRANCH)
