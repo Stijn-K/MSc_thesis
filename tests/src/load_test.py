@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import glob
+import re
 
 import gevent
 import locust
@@ -18,6 +19,7 @@ _SERVER = os.getenv('SERVER')
 _RESULTS = os.getenv("RESULTS")
 _BRANCH = os.getenv("BRANCH")
 _URL = f'https://{_SERVER}:5000'
+_ERROR_RE = re.compile(r'<h2 id="error">Error: (.*?)<\/h2>', re.DOTALL)
 
 
 class TestUser(FastHttpUser):
@@ -50,7 +52,14 @@ class TestUser(FastHttpUser):
     def user(self):
         self.tm.start_transaction('user')
         self.client.get(f'{_URL}/user')
-        self.client.post(f'{_URL}/user', json=self.data)
+
+        with self.client.post(f'{_URL}/user', json=self.data['fingerprint'], catch_response=True) as response:
+            if response.text:
+                if error := _ERROR_RE.search(response.text):
+                    response.failure(error.group(1))
+            else:
+                response.failure('Empty response')
+
         self.tm.end_transaction('user')
 
 
@@ -90,6 +99,7 @@ def start_locust(users: int, spawn_rate: int, time_min: int, stats_path: str) ->
 
 if __name__ == '__main__':
     tests = [(1, 5, 1), (2, 5, 1), (5, 5, 1), (10, 5, 1), (20, 5, 1), (50, 10, 1), (100, 20, 1)]
+    tests = [(1,1,1)]
     num_tests = len(tests)
 
     path = os.path.join(_RESULTS, 'load_tests', _BRANCH)
